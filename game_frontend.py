@@ -96,10 +96,7 @@ def iteration():
                 running = False
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Get the position of the mouse click
-                # print("Player {0}'s Turn".format(turn))
                 mouse_pos = pygame.mouse.get_pos()
-                # print(mouse_pos)
                 for i in range(positions.shape[0]):
                     for j in range(positions.shape[1]):
                         center = positions[i, j]
@@ -108,22 +105,18 @@ def iteration():
                             # Change the color of the clicked circle to blue
                             circles_shown += 1
                             selected_circles.append((center[1], [i, j]))
-                            # print("Circles:", circles_shown)
                             set_circles_to_color(
                                 positions[i, j], screen, circle_radius)
                             if circles_shown == 2:
                                 time.sleep(1)
                                 if selected_circles[0][0] == selected_circles[1][0]:
-                                    # print("Showing the chosen choices")
                                     num_finished += 1
                                     if turn == 1:
-                                        # print("Player 1 wins")
                                         player1_score += 1
                                         player1_surface, _ = set_player_score(
                                             screen, player1, player1_score, turn)
                                     elif turn == 2:
                                         player2_score += 1
-                                        # print("Player 2 wins")
                                         _, player2_surface = set_player_score(
                                             screen, player2, player2_score, turn)
                                     set_circle_right(
@@ -132,7 +125,6 @@ def iteration():
                                 set_circles_to_default(
                                     positions_white, screen, circle_radius)
                                 circles_shown = 0
-                                # score(turn, selected_circles)
                                 selected_circles = []
                                 turn = 1 if turn == 2 else 2
                                 temp_str = f"Player {turn} Turn"
@@ -140,8 +132,6 @@ def iteration():
                                     temp_str, True, (255, 255, 255))
                                 pygame.draw.rect(
                                     screen, (0, 0, 0), player_turn_rect)
-
-                                # circles_shown = 0
                             pygame.display.update()
 
         screen.blit(player1_surface, player1_rect)
@@ -198,5 +188,3 @@ def set_player_score(screen, player, score, turn):
 
 if __name__ == "__main__":
     iteration()
-    # array = random_array()
-    # print(array)
