@@ -10,14 +10,15 @@ def random_array(num_grid):
 
 
 def iteration(num_grid=6):
+    
+    # get the random array
+    global array
+    array = random_array(num_grid)
+    
     # pygame setup
     pygame.init()
     # num_grid = 6
     screen = pygame.display.set_mode((1280, 720))
-
-    # get the random array
-    global array
-    array = random_array(num_grid)
     screen.fill("pink")
 
     # Player1
