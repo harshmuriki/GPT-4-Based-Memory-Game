@@ -9,10 +9,10 @@ def random_array(num_grid):
     return array
 
 
-def iteration():
+def iteration(num_grid=6):
     # pygame setup
     pygame.init()
-    num_grid = 6
+    # num_grid = 6
     screen = pygame.display.set_mode((1280, 720))
 
     # get the random array
@@ -187,4 +187,4 @@ def set_player_score(screen, player, score, turn):
 
 
 if __name__ == "__main__":
-    iteration()
+    iteration(2)
