@@ -4,16 +4,20 @@ import time
 import game_backend
 
 
-def random_array(num_grid):
-    array = game_backend.backend(num_grid)
-    return array
+def random_array(num_grid, radius):
+    array, images_dict = game_backend.backend(num_grid, radius)
+    # print("arr", array)
+    return array, images_dict
 
 
 def iteration(num_grid=6):
     
+    circle_radius = 20
+
     # get the random array
-    global array
-    array = random_array(num_grid)
+    global array, images_dict, coordinates, width
+    width = 40
+    array, images_dict = random_array(num_grid, circle_radius)
     
     # pygame setup
     pygame.init()
@@ -29,14 +33,14 @@ def iteration(num_grid=6):
     player1_rect = player1_surface.get_rect()
     player1_rect.center = (1280*0.03, 50)
 
-    # player2
+    # Player2
     player2 = pygame.font.Font(None, 36)
     player2_surface = player2.render('0', True, (255, 255, 255))
     global player2_rect
     player2_rect = player2_surface.get_rect()
     player2_rect.center = (1280*0.97, 50)
 
-    # player turn shower
+    # Player turn counter
     player_turn = pygame.font.Font(None, 25)
     player_turn_surface = player_turn.render(
         'Player 1 Turn', True, (255, 255, 255))
@@ -45,39 +49,39 @@ def iteration(num_grid=6):
     player_turn_rect.center = (1280*0.50, 50)
 
     running = True
-
     pos_x = np.linspace(
         screen.get_width() * 0.1, screen.get_width() * 0.9, num_grid)
     pos_y = np.linspace(
         screen.get_height() * 0.1, screen.get_height() * 0.9, num_grid)
 
     pos_labels = np.zeros((num_grid, num_grid, 2))
-
+    coordinates = np.zeros((num_grid, num_grid, 2)) #Global variable
+    
     for i in range(pos_labels.shape[0]):
         for j in range(pos_labels.shape[1]):
             pos_labels[i, j, :] = pygame.Vector2(pos_x[i], pos_y[j])
+            coordinates[i, j] = (pos_x[i], pos_y[j])
 
-    data = []
+    # data = []
     data1 = []
     for i, val in enumerate(pos_labels):
         for j, pos_temp in enumerate(val):
             # print("loc", pos_temp)
-            color = array[i, j]
+            index = array[i, j]
             # print(color)
-            temp_pos = (pygame.Vector2(pos_temp[0], pos_temp[1]), color)
-            data.append(temp_pos)
+            # temp_pos = (pygame.Vector2(pos_temp[0], pos_temp[1]), "blue")
+            # data.append(temp_pos)
 
             temp_pos1 = (pygame.Vector2(pos_temp[0], pos_temp[1]), 'white')
             data1.append(temp_pos1)
 
     # print(data)
-    data = np.array(data, dtype=tuple)
+    # data = np.array(data, dtype=tuple)
     data1 = np.array(data1, dtype=tuple)
 
-    positions = np.reshape(data, (num_grid, num_grid, 2))
+    # positions = np.reshape(data, (num_grid, num_grid, 2))
     positions_white = np.reshape(data1, (num_grid, num_grid, 2))
     # print("pos", positions)
-    circle_radius = 20
 
     # Draw inital circles
     set_circles_to_default(positions_white, screen, circle_radius)
@@ -98,16 +102,16 @@ def iteration(num_grid=6):
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                for i in range(positions.shape[0]):
-                    for j in range(positions.shape[1]):
-                        center = positions[i, j]
-                        if ((mouse_pos[0] - center[0][0]) ** 2 +
-                                (mouse_pos[1] - center[0][1]) ** 2) <= circle_radius ** 2:
-                            # Change the color of the clicked circle to blue
+                for i in range(positions_white.shape[0]):
+                    for j in range(positions_white.shape[1]):
+                        circle_center = positions_white[i, j]
+                        if ((mouse_pos[0] - circle_center[0][0]) ** 2 +
+                                (mouse_pos[1] - circle_center[0][1]) ** 2) <= circle_radius ** 2:
                             circles_shown += 1
-                            selected_circles.append((center[1], [i, j]))
-                            set_circles_to_color(
-                                positions[i, j], screen, circle_radius)
+                            selected_circles.append((array[i, j], [i, j]))
+                            
+                            set_circles_to_image(screen, i, j, circle_radius)
+                            
                             if circles_shown == 2:
                                 time.sleep(1)
                                 if selected_circles[0][0] == selected_circles[1][0]:
@@ -120,11 +124,11 @@ def iteration(num_grid=6):
                                         player2_score += 1
                                         _, player2_surface = set_player_score(
                                             screen, player2, player2_score, turn)
-                                    set_circle_right(
+                                    positions_white = set_circle_right(
                                         positions_white, selected_circles)
-
-                                set_circles_to_default(
-                                    positions_white, screen, circle_radius)
+                                else:
+                                    # if wrong selections
+                                    set_wrong_selection(positions_white, screen, circle_radius, selected_circles)
                                 circles_shown = 0
                                 selected_circles = []
                                 turn = 1 if turn == 2 else 2
@@ -144,14 +148,15 @@ def iteration(num_grid=6):
         if num_finished == (num_grid**2) / 2:
             # go to a new screen
             if player1_score > player2_score:
-                won_player = 1
+                won_player = "Player 1 Won"
             elif player1_score == player2_score:
-                won_player = "tie"
+                won_player = "It was a tie"
             else:
-                won_player = 2
-            won_player = 1 if player1_score > player2_score else 2
-            print(f"Game won by player {won_player}!!!!!!!!!!!!!!")
-            exit()
+                won_player = "Player 2 Won"
+            # won_player = 1 if player1_score > player2_score else 2
+            print(f"Game Results: {won_player}!!!!!!!!!!!!!!")
+            # exit()
+            break
 
     pygame.quit()
 
@@ -160,20 +165,46 @@ def set_circles_to_default(positions, screen, circle_radius):
     # print("Resetting all circles to default")
     for i in range(positions.shape[0]):
         for j in range(positions.shape[1]):
-            center = positions[i, j]
-            pygame.draw.circle(screen, center[1], center[0], circle_radius)
+            x, y = positions[i, j][0]
+            # print(x, y)
+            # pygame.draw.circle(screen, "white", circle_center[0], circle_radius)
+            pygame.draw.rect(screen, "white", (x - width/2, y-width/2, width, width))
 
 
-def set_circle_right(positions, centers):
-    for color, center_idx in centers:
-        positions[center_idx[0], center_idx[1]][1] = color
+def set_wrong_selection(positions, screen, circle_radius, selected_circles):
+
+    for _, circle_center_idx in selected_circles:
+        positions[circle_center_idx[0], circle_center_idx[1]][1] = "white"
+        # print("center", positions[1])
+        i, j = circle_center_idx
+        # print(coordinates[i, j])
+        x, y = coordinates[i, j]
+        # pygame.draw.circle(screen, "white", coordinates[i, j], circle_radius)
+        pygame.draw.rect(screen, "white", (x - width/2, y-width/2, width, width))
 
 
-def set_circles_to_color(center, screen, circle_radius):
-    pygame.draw.circle(screen, center[1], center[0], circle_radius)
+def set_circle_right(positions, selected_circles):
+    for image, circle_center_idx in selected_circles:
+        positions[circle_center_idx[0], circle_center_idx[1]][1] = "pink"
+        
+    return positions
+
+
+def set_circles_to_color(circle_center, screen, circle_radius):
+    # pygame.draw.circle(screen, circle_center[1], circle_center[0], circle_radius)
+    pygame.draw.rect(screen, "white", pygame.Rect(5, 5))
     pygame.display.update()
-    # print("Updated", center[1])
+    # print("Updated", circle_center[1])
 
+def set_circles_to_image(screen, i, j, circle_radius):
+
+    image = images_dict[array[i, j]]
+    x, y = coordinates[i, j]
+    loc = x - circle_radius, y - circle_radius
+    
+    screen.blit(image, loc, special_flags=pygame.BLEND_RGBA_MIN)
+
+    pygame.display.update()
 
 def set_player_score(screen, player, score, turn):
     score = str(score)
@@ -188,4 +219,4 @@ def set_player_score(screen, player, score, turn):
 
 
 if __name__ == "__main__":
-    iteration(2)
+    iteration(4)
