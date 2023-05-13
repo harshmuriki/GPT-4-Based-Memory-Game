@@ -6,7 +6,7 @@ import gpt3_image
 import pygame
 
 
-def backend(size, radius):
+def backend(size, radius, prompt):
 
     grid_size = [size, size]  # only even no
 
@@ -18,7 +18,7 @@ def backend(size, radius):
 #     arr = gpt3_color.prompt(int(size*size*0.70) + 2)
 #     print(arr)
     print("Getting the images from GPT")
-    links = gpt3_image.prompt(number_words, "car")
+    links = gpt3_image.prompt(number_words, prompt)
 
     # links = ['https://oaidalleapiprodscus.blob.core.windows.net/private/org-dZcEmqV4WTGc8KyvoaKKdtso/user-3xDZBl4STWUXMYfZRINHE7Cn/img-TCWFi5UShuZCtZyk7y1dv6Ny.png?st=2023-05-12T23%3A22%3A00Z&se=2023-05-13T01%3A22%3A00Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-05-12T20%3A39%3A22Z&ske=2023-05-13T20%3A39%3A22Z&sks=b&skv=2021-08-06&sig=cJ8jQ5ZQ6%2BosA/meSX0QKBU18QpfRgDZnpnXBeD%2BEa8%3D',
     #          'https://oaidalleapiprodscus.blob.core.windows.net/private/org-dZcEmqV4WTGc8KyvoaKKdtso/user-3xDZBl4STWUXMYfZRINHE7Cn/img-R9YyMTylw3Yc2MVRGdIi43L3.png?st=2023-05-12T23%3A22%3A00Z&se=2023-05-13T01%3A22%3A00Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-05-12T20%3A39%3A22Z&ske=2023-05-13T20%3A39%3A22Z&sks=b&skv=2021-08-06&sig=KRG4Um6qTq6ewdwNH%2BhkEs51yjjJ%2BRXo0Dog3iSYvNg%3D']
