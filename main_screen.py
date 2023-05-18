@@ -92,6 +92,7 @@ def iteration(prompt, num_grid=6):
     player1_score = 0
     player2_score = 0
     num_finished = 0
+    finished_circles = []
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
@@ -107,37 +108,41 @@ def iteration(prompt, num_grid=6):
                         circle_center = positions_white[i, j]
                         if ((mouse_pos[0] - circle_center[0][0]) ** 2 +
                                 (mouse_pos[1] - circle_center[0][1]) ** 2) <= circle_radius ** 2:
-                            circles_shown += 1
-                            selected_circles.append((array[i, j], [i, j]))
+                            
+                            if (array[i, j], [i, j]) not in selected_circles and array[i, j] not in finished_circles:
+                                
+                                circles_shown += 1
+                                selected_circles.append((array[i, j], [i, j]))
 
-                            set_circles_to_image(screen, i, j, circle_radius)
+                                set_circles_to_image(screen, i, j, circle_radius)
 
-                            if circles_shown == 2:
-                                time.sleep(1)
-                                if selected_circles[0][0] == selected_circles[1][0]:
-                                    num_finished += 1
-                                    if turn == 1:
-                                        player1_score += 1
-                                        player1_surface, _ = set_player_score(
-                                            screen, player1, player1_score, turn)
-                                    elif turn == 2:
-                                        player2_score += 1
-                                        _, player2_surface = set_player_score(
-                                            screen, player2, player2_score, turn)
-                                    positions_white = set_circle_right(
-                                        positions_white, selected_circles)
-                                else:
-                                    # if wrong selections
-                                    set_wrong_selection(
-                                        positions_white, screen, circle_radius, selected_circles)
-                                circles_shown = 0
-                                selected_circles = []
-                                turn = 1 if turn == 2 else 2
-                                temp_str = f"Player {turn} Turn"
-                                player_turn_surface = player_turn.render(
-                                    temp_str, True, "black")
-                                pygame.draw.rect(
-                                    screen, "pink", player_turn_rect)
+                                if circles_shown == 2:
+                                    time.sleep(1)
+                                    if selected_circles[0][0] == selected_circles[1][0]:
+                                        num_finished += 1
+                                        finished_circles.append(selected_circles[0][0])
+                                        if turn == 1:
+                                            player1_score += 1
+                                            player1_surface, _ = set_player_score(
+                                                screen, player1, player1_score, turn)
+                                        elif turn == 2:
+                                            player2_score += 1
+                                            _, player2_surface = set_player_score(
+                                                screen, player2, player2_score, turn)
+                                        positions_white = set_circle_right(
+                                            positions_white, selected_circles)
+                                    else:
+                                        # if wrong selections
+                                        set_wrong_selection(
+                                            positions_white, screen, circle_radius, selected_circles)
+                                    circles_shown = 0
+                                    selected_circles = []
+                                    turn = 1 if turn == 2 else 2
+                                    temp_str = f"Player {turn} Turn"
+                                    player_turn_surface = player_turn.render(
+                                        temp_str, True, "black")
+                                    pygame.draw.rect(
+                                        screen, "pink", player_turn_rect)
                             pygame.display.update()
 
         screen.blit(player1_surface, player1_rect)
